@@ -40,12 +40,19 @@ local function get_current_layout()
 end
 
 local function execute_silent(target_layout)
-	local full_cmd = { unpack(opts.cmd_set_layout) }
+	local full_cmd = { unpack(opts.cmd_set_full) }
 	table.insert(full_cmd, target_layout)
-	local result = vim.system(full_cmd, { text = true }):wait()
-	-- local result = vim.fn.system({ opts.sh_cmd, opts.sh_args, command })
-	if result.stdout ~= "" or result.stderr ~= "" then
-		print("Ошибка выполнения команды: " .. result.stdout .. result.stderr)
+
+	local ok, result = pcall(function()
+		return vim.system(full_cmd, { text = true }):wait()
+	end)
+
+	if not ok then
+		print("Ошибка выполнения команды: " .. result)
+	else
+		if result.stdout ~= "" or result.stderr ~= "" then
+			print("Ошибка: " .. result.stdout .. result.stderr)
+		end
 	end
 end
 
@@ -58,8 +65,6 @@ function M.init(config)
 	opts.args_get_layout = split_by_spaces(opts.args_get_layout)
 	opts.cmd_set_layout = split_by_spaces(opts.cmd_set_layout)
 	opts.args_set_layout = split_by_spaces(opts.args_set_layout)
-	-- opts.sh_cmd = split_by_spaces(opts.sh_cmd)
-	-- opts.sh_args = split_by_spaces(opts.sh_args)
 
 	-- Создаём полные команды для быстрого доступа
 	opts.cmd_get_full = {
@@ -72,17 +77,12 @@ function M.init(config)
 		unpack(opts.args_set_layout),
 	} -- Базовая часть команды для изменения раскладки
 
-	-- opts.sh_full = {
-	-- 	unpack(opts.sh_cmd),
-	-- 	unpack(opts.sh_args),
-	-- } -- Полная команда bash
-
 	-- При входе в режим вставки:
 	vim.api.nvim_create_autocmd("InsertEnter", {
 		callback = function()
 			local current_layout = get_current_layout()
 			if last_layout and last_layout ~= current_layout then
-				execute_silent(opts.cmd_set_layout .. opts.args_set_layout .. last_layout)
+				execute_silent(last_layout)
 			end
 		end,
 	})
@@ -92,7 +92,7 @@ function M.init(config)
 		callback = function()
 			last_layout = get_current_layout()
 			-- Переключаемся на EN или пользовательскую раскладку
-			execute_silent(opts.cmd_set_layout .. opts.args_set_layout .. opts.default_layout_on_leave)
+			execute_silent(opts.default_layout_on_leave)
 		end,
 	})
 end
