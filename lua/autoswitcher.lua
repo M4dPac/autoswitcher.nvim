@@ -74,7 +74,7 @@ local function execute_silent(target_layout)
 end
 
 --- Инициализация плагина
-function M.init(user_config)
+function M.setup(user_config)
 	-- Объединение настроек
 	opts = vim.tbl_extend("force", default_opts, user_config or {})
 
