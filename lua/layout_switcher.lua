@@ -1,3 +1,4 @@
+local M = {}
 local opts = {}
 
 local last_layout = nil
@@ -58,7 +59,7 @@ end
 
 --- Инициализация плагина
 function M.init(config)
-	opts = config -- Применяем пользовательские настройки
+	opts = config or {} -- Применяем пользовательские настройки
 
 	-- Разбиваем все аргументы по пробелам при старте
 	opts.cmd_get_layout = split_by_spaces(opts.cmd_get_layout)

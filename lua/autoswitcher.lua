@@ -23,7 +23,7 @@ function M.setup(opts)
 	opts = vim.tbl_extend("force", default_opts, opts or {})
 
 	-- Загружаем основной код
-	require("plugin.layout_switcher").init(opts)
+	require("layout_switcher").init(opts)
 end
 
 return M
